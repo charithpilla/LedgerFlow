@@ -7,21 +7,31 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg-gradient: radial-gradient(circle at top left, #1e293b, #020617 80%);
-    --surface: rgba(30, 41, 59, 0.45);
-    --border: rgba(255, 255, 255, 0.1);
-    --primary: #3b82f6;
-    --primary-hover: #60a5fa;
-    --text: #f8fafc;
-    --slate: #94a3b8;
-    --success: #10b981;
-    --warning: #f59e0b;
+  :root {
+    /* Base typography & metrics */
     --radius: 12px;
     --font-display: 'Spectral', Georgia, serif;
     --font-body: 'Inter', -apple-system, sans-serif;
+    --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+
+    /* Theme-agnostic colors */
+    --primary: #3b82f6;
+    --primary-hover: #60a5fa;
+    --success: #10b981;
+    --warning: #f59e0b;
+  }
+
+  [data-theme="dark"], :root {
+    /* Dark Mode (Default) */
+    --bg-color: #020617;
+    --bg-gradient: radial-gradient(circle at top left, #1e293b, #020617 80%);
+    --surface: rgba(30, 41, 59, 0.45);
+    --surface-hover: rgba(30, 41, 59, 0.65);
+    --border: rgba(255, 255, 255, 0.1);
+    --text: #f8fafc;
+    --slate: #94a3b8;
     
-    /* Mapping old variables */
+    /* Legacy Mappings */
     --ink: var(--text);
     --ledger-green: var(--primary);
     --paper: transparent;
@@ -30,17 +40,74 @@
     --brass: var(--warning);
     --line: var(--border);
     --white: var(--surface);
+    --good: var(--success);
+    
+    /* Glows & Glassmorphism */
+    --glass-border: rgba(255, 255, 255, 0.05);
+    --glow-shadow: 0 0 25px rgba(59, 130, 246, 0.2);
+    --orb-1: rgba(59, 130, 246, 0.2);
+    --orb-2: rgba(16, 185, 129, 0.15);
+  }
+
+  [data-theme="light"] {
+    /* Light Mode */
+    --bg-color: #f8fafc;
+    --bg-gradient: radial-gradient(circle at top left, #ffffff, #f1f5f9 80%);
+    --surface: rgba(255, 255, 255, 0.85);
+    --surface-hover: rgba(255, 255, 255, 0.95);
+    --border: rgba(0, 0, 0, 0.08);
+    --text: #0f172a;
+    --slate: #64748b;
+    
+    /* Legacy Mappings */
+    --ink: var(--text);
+    --ledger-green: var(--primary);
+    --paper: transparent;
+    --paper-dim: var(--surface);
+    --stamp: var(--warning);
+    --brass: var(--warning);
+    --line: var(--border);
+    --white: #ffffff;
+    --good: var(--success);
+    
+    /* Glows & Glassmorphism */
+    --glass-border: rgba(255, 255, 255, 0.8);
+    --glow-shadow: 0 8px 20px rgba(59, 130, 246, 0.25);
+    --orb-1: rgba(59, 130, 246, 0.1);
+    --orb-2: rgba(16, 185, 129, 0.08);
   }
   *{box-sizing:border-box;}
   body{
-    margin:0; background:var(--bg-gradient); color:var(--ink);
+    margin:0; background:var(--bg-color); color:var(--ink);
     font-family:var(--font-body); -webkit-font-smoothing:antialiased;
     display: flex; align-items: center; justify-content: center; height: 100vh;
+    overflow: hidden; position: relative;
   }
+  
+  /* Ambient Glowing Background Orbs */
+  .ambient-orb {
+    position: absolute; border-radius: 50%; filter: blur(100px); z-index: -1;
+    animation: float 10s ease-in-out infinite alternate; pointer-events: none;
+  }
+  .orb-1 { width: 500px; height: 500px; background: var(--orb-1); top: -10%; left: -10%; }
+  .orb-2 { width: 600px; height: 600px; background: var(--orb-2); bottom: -20%; right: -10%; animation-delay: -5s; }
+  @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(60px, 40px) scale(1.1); } }
+
+  /* Theme Toggle Button */
+  .theme-toggle {
+    position: absolute; top: 24px; right: 24px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 50%; width: 42px; height: 42px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    font-size: 20px; transition: all 0.2s; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1); color: var(--text); z-index: 100;
+  }
+  .theme-toggle:hover { transform: scale(1.05); background: var(--surface-hover); }
+
   .login-card{
     background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:32px; width: 100%; max-width: 400px;
     backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    border-top: 1px solid var(--glass-border); border-left: 1px solid var(--glass-border);
   }
   .brand{display:flex; align-items:center; gap:12px; justify-content: center; margin-bottom: 32px;}
   .brand-mark{
@@ -62,8 +129,8 @@
     font-family:var(--font-body); font-weight:600; font-size:13.5px; cursor:pointer;
     border-radius:6px; border:1px solid transparent; padding:11px; transition:all .2s ease; width: 100%;
   }
-  .btn-primary{background:var(--primary); color:white; box-shadow: 0 0 10px rgba(59,130,246,0.3);}
-  .btn-primary:hover{background:var(--primary-hover); transform: translateY(-1px); box-shadow: 0 0 15px rgba(59,130,246,0.5);}
+  .btn-primary{background:var(--primary); color:white; box-shadow: var(--glow-shadow);}
+  .btn-primary:hover{background:var(--primary-hover); transform: translateY(-1px); box-shadow: 0 0 25px rgba(59,130,246,0.5);}
 
   .switch-mode{
     text-align: center; margin-top: 20px; font-size: 13px; color: var(--slate);
@@ -78,6 +145,27 @@
 </style>
 </head>
 <body>
+
+<!-- Ambient Graphics -->
+<div class="ambient-orb orb-1"></div>
+<div class="ambient-orb orb-2"></div>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">☀️</button>
+
+<script>
+  function toggleTheme() {
+    const isDark = document.body.getAttribute('data-theme') !== 'light';
+    const newTheme = isDark ? 'light' : 'dark';
+    document.body.setAttribute('data-theme', newTheme);
+    localStorage.setItem('ledgerflow_theme', newTheme);
+    document.getElementById('theme-btn').textContent = newTheme === 'light' ? '🌙' : '☀️';
+  }
+  
+  const savedTheme = localStorage.getItem('ledgerflow_theme') || 'dark';
+  document.body.setAttribute('data-theme', savedTheme);
+  document.getElementById('theme-btn').textContent = savedTheme === 'light' ? '🌙' : '☀️';
+</script>
 
 <div class="login-card">
   <div class="brand">

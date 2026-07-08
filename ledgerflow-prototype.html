@@ -7,23 +7,31 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg-gradient: radial-gradient(circle at top left, #1e293b, #020617 80%);
-    --surface: rgba(30, 41, 59, 0.45);
-    --surface-hover: rgba(30, 41, 59, 0.65);
-    --border: rgba(255, 255, 255, 0.1);
-    --primary: #3b82f6;
-    --primary-hover: #60a5fa;
-    --text: #f8fafc;
-    --slate: #94a3b8;
-    --success: #10b981;
-    --warning: #f59e0b;
+  :root {
+    /* Base typography & metrics */
     --radius: 12px;
     --font-display: 'Spectral', Georgia, serif;
     --font-body: 'Inter', -apple-system, sans-serif;
     --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+
+    /* Theme-agnostic colors */
+    --primary: #3b82f6;
+    --primary-hover: #60a5fa;
+    --success: #10b981;
+    --warning: #f59e0b;
+  }
+
+  [data-theme="dark"], :root {
+    /* Dark Mode (Default) */
+    --bg-color: #020617;
+    --bg-gradient: radial-gradient(circle at top left, #1e293b, #020617 80%);
+    --surface: rgba(30, 41, 59, 0.45);
+    --surface-hover: rgba(30, 41, 59, 0.65);
+    --border: rgba(255, 255, 255, 0.1);
+    --text: #f8fafc;
+    --slate: #94a3b8;
     
-    /* Mapping old variables to new premium ones so the page doesn't break */
+    /* Legacy Mappings */
     --ink: var(--text);
     --ledger-green: var(--primary);
     --paper: transparent;
@@ -33,13 +41,66 @@
     --line: var(--border);
     --white: var(--surface);
     --good: var(--success);
+    
+    /* Glows & Glassmorphism */
+    --glass-border: rgba(255, 255, 255, 0.05);
+    --glow-shadow: 0 0 25px rgba(59, 130, 246, 0.2);
+    --orb-1: rgba(59, 130, 246, 0.2);
+    --orb-2: rgba(16, 185, 129, 0.15);
+  }
+
+  [data-theme="light"] {
+    /* Light Mode */
+    --bg-color: #f8fafc;
+    --bg-gradient: radial-gradient(circle at top left, #ffffff, #f1f5f9 80%);
+    --surface: rgba(255, 255, 255, 0.85);
+    --surface-hover: rgba(255, 255, 255, 0.95);
+    --border: rgba(0, 0, 0, 0.08);
+    --text: #0f172a;
+    --slate: #64748b;
+    
+    /* Legacy Mappings */
+    --ink: var(--text);
+    --ledger-green: var(--primary);
+    --paper: transparent;
+    --paper-dim: var(--surface);
+    --stamp: var(--warning);
+    --brass: var(--warning);
+    --line: var(--border);
+    --white: #ffffff;
+    --good: var(--success);
+    
+    /* Glows & Glassmorphism */
+    --glass-border: rgba(255, 255, 255, 0.8);
+    --glow-shadow: 0 8px 20px rgba(59, 130, 246, 0.25);
+    --orb-1: rgba(59, 130, 246, 0.1);
+    --orb-2: rgba(16, 185, 129, 0.08);
   }
   *{box-sizing:border-box;}
   body{
-    margin:0; background:var(--bg-gradient); color:var(--ink); min-height: 100vh;
+    margin:0; background:var(--bg-color); color:var(--ink); min-height: 100vh;
     font-family:var(--font-body); -webkit-font-smoothing:antialiased;
-    background-attachment: fixed;
+    background-attachment: fixed; overflow-x: hidden; position: relative;
   }
+  
+  /* Ambient Glowing Background Orbs */
+  .ambient-orb {
+    position: absolute; border-radius: 50%; filter: blur(100px); z-index: -1;
+    animation: float 10s ease-in-out infinite alternate; pointer-events: none;
+  }
+  .orb-1 { width: 500px; height: 500px; background: var(--orb-1); top: -10%; left: -10%; }
+  .orb-2 { width: 600px; height: 600px; background: var(--orb-2); bottom: -20%; right: -10%; animation-delay: -5s; }
+  @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(60px, 40px) scale(1.1); } }
+
+  /* Theme Toggle Button */
+  .theme-toggle {
+    position: absolute; top: 24px; right: 24px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 50%; width: 42px; height: 42px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    font-size: 20px; transition: all 0.2s; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1); color: var(--text); z-index: 100;
+  }
+  .theme-toggle:hover { transform: scale(1.05); background: var(--surface-hover); }
   .app{max-width:1100px; margin:0 auto; padding:28px 24px 80px;}
 
   /* Header */
@@ -82,6 +143,7 @@
     background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px 18px;
     backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border-top: 1px solid var(--glass-border); border-left: 1px solid var(--glass-border);
     transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   }
   .kpi:hover{
@@ -98,6 +160,7 @@
     background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px 20px 20px;
     margin-bottom:28px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border-top: 1px solid var(--glass-border); border-left: 1px solid var(--glass-border);
   }
   .pipeline-title{font-family:var(--font-display); font-size:15px; font-weight:600; margin-bottom:18px;}
   .pipeline{display:flex; align-items:center; justify-content:space-between; position:relative;}
@@ -118,10 +181,10 @@
     font-family:var(--font-body); font-weight:600; font-size:13.5px; cursor:pointer;
     border-radius:6px; border:1px solid transparent; padding:9px 16px; transition:all .2s ease;
   }
-  .btn-primary{background:var(--primary); color:white; box-shadow: 0 0 10px rgba(59,130,246,0.3);}
-  .btn-primary:hover{background:var(--primary-hover); transform: translateY(-1px); box-shadow: 0 0 15px rgba(59,130,246,0.5);}
-  .btn-stamp{background:var(--stamp); color:white; box-shadow: 0 0 10px rgba(245,158,11,0.2);}
-  .btn-stamp:hover{background:#d97706; transform: translateY(-1px); box-shadow: 0 0 15px rgba(245,158,11,0.4);}
+  .btn-primary{background:var(--primary); color:white; box-shadow: var(--glow-shadow);}
+  .btn-primary:hover{background:var(--primary-hover); transform: translateY(-1px); box-shadow: 0 0 25px rgba(59,130,246,0.5);}
+  .btn-stamp{background:var(--stamp); color:white; box-shadow: 0 0 15px rgba(245,158,11,0.25);}
+  .btn-stamp:hover{background:#d97706; transform: translateY(-1px); box-shadow: 0 0 25px rgba(245,158,11,0.5);}
   .btn-ghost{background:rgba(255,255,255,0.05); color:var(--text); border-color:var(--border);}
   .btn-ghost:hover{border-color:rgba(255,255,255,0.2); background:rgba(255,255,255,0.1);}
   .btn:disabled{opacity:0.4; cursor:not-allowed;}
@@ -131,6 +194,7 @@
     background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px; max-width:560px;
     backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border-top: 1px solid var(--glass-border); border-left: 1px solid var(--glass-border);
   }
   .field{margin-bottom:16px;}
   .field label{display:block; font-size:12.5px; font-weight:600; color:var(--slate); margin-bottom:6px;}
@@ -145,6 +209,20 @@
   }
   .upload-box:hover{border-color:var(--brass);}
   .upload-box.filled{border-style:solid; border-color:var(--ledger-green); color:var(--ink);}
+
+  /* Chip Group Options */
+  .chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip-group input[type="radio"] { display: none; }
+  .chip-group label {
+    padding: 8px 14px; border-radius: 20px; border: 1px solid var(--border);
+    color: var(--slate); font-size: 13px; font-weight: 500; cursor: pointer;
+    transition: all 0.2s ease; background: rgba(255,255,255,0.02);
+  }
+  .chip-group label:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); }
+  .chip-group input[type="radio"]:checked + label {
+    background: var(--primary); color: #fff; border-color: var(--primary);
+    box-shadow: 0 0 12px rgba(59,130,246,0.25);
+  }
 
   .extract-status{
     display:none; align-items:center; gap:10px; font-size:13px; color:var(--ledger-green);
@@ -192,7 +270,8 @@
   .overlay.open{display:flex;}
   .drawer{
     background:var(--paper); border-radius:12px; max-width:480px; width:100%; padding:26px;
-    box-shadow:0 20px 60px rgba(0,0,0,0.25);
+    box-shadow:0 20px 60px rgba(0,0,0,0.25); border:1px solid var(--border);
+    border-top: 1px solid var(--glass-border); border-left: 1px solid var(--glass-border);
   }
   .drawer-head{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;}
   .drawer-title{font-family:var(--font-display); font-size:19px; font-weight:600;}
@@ -213,7 +292,7 @@
 
   /* Insights */
   .insight-grid{display:grid; grid-template-columns:1.3fr 1fr; gap:20px;}
-  .chart-card{background:var(--white); border:1px solid var(--line); border-radius:10px; padding:20px;}
+  .chart-card{background:var(--white); border:1px solid var(--line); border-radius:10px; padding:20px; border-top: 1px solid var(--glass-border); border-left: 1px solid var(--glass-border);}
   .chart-title{font-family:var(--font-display); font-size:14.5px; font-weight:600; margin-bottom:16px;}
   .bar-row{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
   .bar-label{width:110px; font-size:12px; color:var(--slate); flex-shrink:0;}
@@ -241,6 +320,13 @@
 </style>
 </head>
 <body>
+<!-- Ambient Graphics -->
+<div class="ambient-orb orb-1"></div>
+<div class="ambient-orb orb-2"></div>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">☀️</button>
+
 <div class="app">
 
   <div class="brand-row">
@@ -304,11 +390,17 @@
     <div class="form-card">
       <div class="field">
         <label>Document type</label>
-        <select id="f-type">
-          <option>Vendor Invoice</option>
-          <option>Purchase Receipt</option>
-          <option>Employee Reimbursement</option>
-        </select>
+        <div class="chip-group">
+          <input type="radio" id="type-vendor" name="type-radio" value="Vendor Invoice" checked onchange="document.getElementById('f-type').value = this.value">
+          <label for="type-vendor">Vendor Invoice</label>
+          
+          <input type="radio" id="type-receipt" name="type-radio" value="Purchase Receipt" onchange="document.getElementById('f-type').value = this.value">
+          <label for="type-receipt">Purchase Receipt</label>
+          
+          <input type="radio" id="type-reimbursement" name="type-radio" value="Employee Reimbursement" onchange="document.getElementById('f-type').value = this.value">
+          <label for="type-reimbursement">Employee Reimbursement</label>
+        </div>
+        <input type="hidden" id="f-type" value="Vendor Invoice">
       </div>
       <div class="field">
         <label>Vendor / Payee</label>
@@ -320,14 +412,26 @@
       </div>
       <div class="field">
         <label>Category</label>
-        <select id="f-category">
-          <option>Office Supplies</option>
-          <option>Travel</option>
-          <option>Utilities</option>
-          <option>Rent</option>
-          <option>Software &amp; Subscriptions</option>
-          <option>Client Entertainment</option>
-        </select>
+        <div class="chip-group">
+          <input type="radio" id="cat-office" name="cat-radio" value="Office Supplies" checked onchange="document.getElementById('f-category').value = this.value">
+          <label for="cat-office">Office Supplies</label>
+          
+          <input type="radio" id="cat-travel" name="cat-radio" value="Travel" onchange="document.getElementById('f-category').value = this.value">
+          <label for="cat-travel">Travel</label>
+          
+          <input type="radio" id="cat-utilities" name="cat-radio" value="Utilities" onchange="document.getElementById('f-category').value = this.value">
+          <label for="cat-utilities">Utilities</label>
+          
+          <input type="radio" id="cat-rent" name="cat-radio" value="Rent" onchange="document.getElementById('f-category').value = this.value">
+          <label for="cat-rent">Rent</label>
+          
+          <input type="radio" id="cat-software" name="cat-radio" value="Software &amp; Subscriptions" onchange="document.getElementById('f-category').value = this.value">
+          <label for="cat-software">Software &amp; Subscriptions</label>
+          
+          <input type="radio" id="cat-client" name="cat-radio" value="Client Entertainment" onchange="document.getElementById('f-category').value = this.value">
+          <label for="cat-client">Client Entertainment</label>
+        </div>
+        <input type="hidden" id="f-category" value="Office Supplies">
       </div>
       <div class="field">
         <label>Attachment</label>
@@ -746,6 +850,19 @@ function payDoc(id){
 document.getElementById('overlay').addEventListener('click', (e)=>{ if(e.target.id==='overlay') closeDrawer(); });
 
 loadDocuments();
+</script>
+<script>
+  function toggleTheme() {
+    const isDark = document.body.getAttribute('data-theme') !== 'light';
+    const newTheme = isDark ? 'light' : 'dark';
+    document.body.setAttribute('data-theme', newTheme);
+    localStorage.setItem('ledgerflow_theme', newTheme);
+    document.getElementById('theme-btn').textContent = newTheme === 'light' ? '🌙' : '☀️';
+  }
+  
+  const savedTheme = localStorage.getItem('ledgerflow_theme') || 'dark';
+  document.body.setAttribute('data-theme', savedTheme);
+  document.getElementById('theme-btn').textContent = savedTheme === 'light' ? '🌙' : '☀️';
 </script>
 </body>
 </html>
