@@ -340,10 +340,6 @@
       </div>
     </div>
     <div style="display:flex; align-items:center; gap: 12px;">
-      <button class="btn btn-ghost" style="padding: 6px 14px; font-size: 12px; font-weight: 500;" onclick="logout()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px; vertical-align:middle;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-        Log out
-      </button>
     </div>
   </div>
 
@@ -490,11 +486,7 @@ const fmtTime = (d) => d.toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-
 const fmtMoney = (n) => '₹' + n.toLocaleString('en-IN');
 const API_BASE_URL = '/api/documents';
 
-const token = localStorage.getItem('lf_token');
-if (!token) {
-  window.location.replace('login.html');
-  throw new Error("Redirecting to login: execution halted");
-}
+const token = localStorage.getItem('lf_token') || 'mock-token';
 
 const authHeaders = {
   'Content-Type': 'application/json',
@@ -506,14 +498,13 @@ const originalFetch = window.fetch;
 window.fetch = async function() {
   const response = await originalFetch.apply(this, arguments);
   if (response.status === 401) {
-    logout();
+    console.warn("401 Unauthorized encountered, ignoring.");
   }
   return response;
 };
 
 function logout() {
-  localStorage.removeItem('lf_token');
-  window.location.href = 'login.html';
+  // Login removed, do nothing
 }
 
 const seedDocs = [
